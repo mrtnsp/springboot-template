@@ -23,10 +23,19 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
 
+        <docker.snapshot.tag>latest-snapshot</docker.snapshot.tag>
+        <docker.release.tag>latest</docker.release.tag>
+        <docker.tag>${docker.snapshot.tag}</docker.tag>
+        <docker.image.prefix>docker-repository.intern.neusta.de:18443/examples</docker.image.prefix>
+
+
         <junit-jupiter-engine.version>5.3.1</junit-jupiter-engine.version>
         <assertj.version>3.11.1</assertj.version>
+        <lombok.version>1.18.2</lombok.version>
+        <activation.version>1.1.1</activation.version>
 
 
+        <dockerfile-maven-plugin.version>1.4.8</dockerfile-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <maven-jacoco-plugin.version>0.8.2</maven-jacoco-plugin.version>
         <maven.jxr.version>2.5</maven.jxr.version>
@@ -106,7 +115,72 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven-site-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>dockerfile-maven-plugin</artifactId>
+                    <version>${dockerfile-maven-plugin.version}</version>
+                    <configuration>
+                        <repository>${docker.image.prefix}/${project.artifactId}</repository>
+                        <buildArgs>
+                            <JAR_FILE>${project.build.outputDirectory}/${project.build.finalName}.jar</JAR_FILE>
+                        </buildArgs>
+                        <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>build-version</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                            <configuration>
+                                <classifier>docker-info-version-ts</classifier>
+                                <tag>${project.version}</tag>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>tag-version</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>tag</goal>
+                            </goals>
+                            <configuration>
+                                <classifier>docker-info-version</classifier>
+                                <tag>${docker.tag}</tag>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>push-version</id>
+                            <phase>deploy</phase>
+                            <goals>
+                                <goal>push</goal>
+                            </goals>
+                            <configuration>
+                                <tag>${project.version}</tag>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>push-latest</id>
+                            <phase>deploy</phase>
+                            <goals>
+                                <goal>push</goal>
+                            </goals>
+                            <configuration>
+                                <tag>${docker.tag}</tag>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.activation</groupId>
+                            <artifactId>activation</artifactId>
+                            <version>${activation.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
             </plugins>
+
 
         </pluginManagement>
 
@@ -139,6 +213,17 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <configuration>
+                    <repository>${docker.image.prefix}/${project.artifactId}</repository>
+                    <buildArgs>
+                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -175,4 +260,17 @@
 
     </reporting>
 
+
+    <profiles>
+        <!-- this profile is used for releases to tag the docker file as "latest" -->
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <docker.tag>${docker.release.tag}</docker.tag>
+            </properties>
+        </profile>
+    </profiles>
 </project>
