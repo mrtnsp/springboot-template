@@ -1,4 +1,4 @@
-FROM openjdk:11.0.1-jdk-slim
+FROM openjdk:11.0.2-slim
 
 ARG JAR_FILE
 ADD  ${JAR_FILE} /app.jar
