@@ -7,7 +7,7 @@ each build creates a a docker image with the tags ${version} and latest-snapshot
 
 run the docker image with
 
-    docker run docker-repository.intern.neusta.de:18443/examples/spring-boot-java11-template:latest-snapshot 
+    docker run examples/spring-boot-java11-template:latest-snapshot 
 
 ## Profiles
 
