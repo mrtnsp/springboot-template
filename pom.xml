@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.3.RELEASE</version>
+        <version>3.0.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -25,29 +25,17 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
-
-        <docker.snapshot.tag>latest-snapshot</docker.snapshot.tag>
-        <docker.release.tag>latest</docker.release.tag>
-        <docker.tag>${docker.snapshot.tag}</docker.tag>
-        <docker.image.prefix>examples</docker.image.prefix>
+        <java.version>17</java.version>
 
 
-        <junit-jupiter-engine.version>5.4.1</junit-jupiter-engine.version>
-        <assertj.version>3.12.2</assertj.version>
-        <lombok.version>1.18.6</lombok.version>
-        <activation.version>1.1.1</activation.version>
-
-
-        <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
-        <maven-jacoco-plugin.version>0.8.3</maven-jacoco-plugin.version>
+        <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
+        <maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
         <maven.jxr.version>3.0.0</maven.jxr.version>
         <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
         <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
 
-        <jacoco.min.line.coverage>0.95</jacoco.min.line.coverage>
-        <jacoco.min.branch.coverage>0.95</jacoco.min.branch.coverage>
+        <jacoco.min.line.coverage>1.00</jacoco.min.line.coverage>
+        <jacoco.min.branch.coverage>1.00</jacoco.min.branch.coverage>
 
     </properties>
 
@@ -70,31 +58,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-
 
     </dependencies>
 
@@ -117,69 +81,7 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven-site-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.spotify</groupId>
-                    <artifactId>dockerfile-maven-plugin</artifactId>
-                    <version>${dockerfile-maven-plugin.version}</version>
-                    <configuration>
-                        <repository>${docker.image.prefix}/${project.artifactId}</repository>
-                        <buildArgs>
-                            <JAR_FILE>${project.build.outputDirectory}/${project.build.finalName}.jar</JAR_FILE>
-                        </buildArgs>
-                        <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>build-version</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>build</goal>
-                            </goals>
-                            <configuration>
-                                <classifier>docker-info-version-ts</classifier>
-                                <tag>${project.version}</tag>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>tag-version</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>tag</goal>
-                            </goals>
-                            <configuration>
-                                <classifier>docker-info-version</classifier>
-                                <tag>${docker.tag}</tag>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>push-version</id>
-                            <phase>deploy</phase>
-                            <goals>
-                                <goal>push</goal>
-                            </goals>
-                            <configuration>
-                                <tag>${project.version}</tag>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>push-latest</id>
-                            <phase>deploy</phase>
-                            <goals>
-                                <goal>push</goal>
-                            </goals>
-                            <configuration>
-                                <tag>${docker.tag}</tag>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>javax.activation</groupId>
-                            <artifactId>activation</artifactId>
-                            <version>${activation.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
+
 
             </plugins>
 
@@ -215,17 +117,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <configuration>
-                    <repository>${docker.image.prefix}/${project.artifactId}</repository>
-                    <buildArgs>
-                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
-                    </buildArgs>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 
